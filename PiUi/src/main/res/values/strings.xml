@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="permission_title">Requesting permission</string>
+    <string name="ok">Ok</string>
+    <string name="required_for_the_piweather">%1$s required for the PiWeather</string>
+    <string name="app_settings">App settings</string>
+    <string name="android_permission">android.permission.</string>
+    <string name="piweather_requires_below_permission">PiWeather requires below permission:</string>
+    <string name="grant_permissions">Grant permissions</string>
+    <string name="permissions_required_by_the_piweather">Permissions required by the PiWeather</string>
+    <string name="the_piweather_requires_the">The PiWeather requires the following permissions to work:\n %1$s</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="str_continue">Continue</string>
+</resources>
