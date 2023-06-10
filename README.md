@@ -36,3 +36,4 @@ This is core model that hold business model, business logics & other core functi
 This app uses mockk for Junit test cases
 - Network module's  repository class has 100% coverage
 - PiModel's data class has 100 % coverage
+- HomeViewModel has 85% of coverage
