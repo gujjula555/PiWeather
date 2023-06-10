@@ -47,6 +47,7 @@ camera-view = "1.2.2"
 appcompat = "1.6.1"
 material = "1.8.0"
 play-service-location = "21.0.1"
+mockk = "1.13.5"
 [libraries]
 play-service-location = {group = "com.google.android.gms", name = "play-services-location", version.ref ="play-service-location"}
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -95,9 +96,6 @@ test-ext = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "tes
 
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 
-
-
-
 google-code-gson = {group = "com.google.code.gson", name = "gson", version.ref = "gson"}
 crypto = {group = "androidx.security", name = "security-crypto", version.ref = "crypto"}
 coroutines-android = {group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines-android"}
@@ -108,11 +106,18 @@ appcompanist-placeholder = {group = "com.google.accompanist", name = "accompanis
 lottie = {group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottieVersion"}
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# mockk
+mockk-android = {group = "io.mockk", name= "mockk-android", version.ref = "mockk"}
+mockk-agent =  {group = "io.mockk", name = "mockk-agent", version.ref = "mockk"}
+kotlinx-coroutines-text = {group="org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-android"}
+
 [bundles]
 ui = ["compose-ui", "ui-tooling-preview","compose-navigation", "compose-graphics", "compose-material3" ]
 hilt = ["hilt-android", "hilt-common", "hilt-navigation-compose", "hilt-navigation"]
 retrofit = ["retrofit", "retrofit-gson", "okhttp-logging"]
 appcompanist = ["appcompanist-pager", "appcompanist-pager-indicator", "appcompanist-placeholder"]
+mockk-test = ["mockk-android", "mockk-agent", "kotlinx-coroutines-text"]
 [plugins]
 android-application = { id = "com.android.application", version.ref = "com-android-application" }
 android-library = {id = "com.android.library", version.ref = "com-android-application"}

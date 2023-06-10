@@ -15,4 +15,6 @@
     <string name="humidity">Humidity</string>
     <string name="pressure">Pressure</string>
     <string name="temperature">Temperature</string>
+    <string name="max">Max</string>
+    <string name="min">Min</string>
 </resources>

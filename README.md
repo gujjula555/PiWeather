@@ -31,3 +31,8 @@ This module helps to track the error message and navigation between the jetpack 
 - ErrorManager - Simple class that emit errorInfo as on when user try to post error message to UI. MainActivity hosting all the pages on top of parent Scaffold that display this error messages in the form of Toast
 ### PiModel
 This is core model that hold business model, business logics & other core functionalities
+
+## Test Coverage
+This app uses mockk for Junit test cases
+- Network module's  repository class has 100% coverage
+- PiModel's data class has 100 % coverage

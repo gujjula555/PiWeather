@@ -141,7 +141,6 @@ fun RenderWeatherInformation(weatherResponse: WeatherResponse? = null) {
 fun PiWidget(
     modifier: Modifier = Modifier,
     imageVector: ImageVector = Icons.Default.Warning,
-    tintColor: Color = Color.Blue,
     title: String = "Humidity",
     actualValue: String = "35"
 ) {
@@ -155,7 +154,6 @@ fun PiWidget(
             Icon(
                 imageVector = imageVector,
                 contentDescription = title,
-                tint = tintColor,
                 modifier = Modifier.size(Dimen.image_size)
             )
             Spacer(modifier = Modifier.height(Dimen.space))
@@ -335,7 +333,6 @@ fun WeatherMainScreen(
         ) {
             PiWidget(
                 imageVector = Icons.Default.RunCircle,
-                tintColor = Color.Blue,
                 title = stringResource(R.string.humidity),
                 actualValue = (weatherResponse.main?.humidity?.toString() ?: "0") + " %",
                 modifier = Modifier.weight(1f)
@@ -343,7 +340,6 @@ fun WeatherMainScreen(
             )
             PiWidget(
                 imageVector = Icons.Default.WindPower,
-                tintColor = Color.Magenta.copy(0.9f),
                 title = stringResource(R.string.pressure),
                 actualValue = weatherResponse.main?.pressure?.toString() ?: EMPTY_STRING,
                 modifier = Modifier.weight(1f)
@@ -365,16 +361,14 @@ fun WeatherMainScreen(
         ) {
             PiWidget(
                 imageVector = Icons.Default.WbSunny,
-                tintColor = Color.Red.copy(alpha = 0.4f),
-                title = "Min",
+                title = stringResource(R.string.min),
                 actualValue = weatherResponse.main?.tempMin?.toFahrenheit() ?: EMPTY_STRING,
                 modifier = Modifier.weight(1f)
             )
             PiWidget(
                 modifier = Modifier.weight(1f),
                 imageVector = Icons.Default.WbSunny,
-                tintColor = Color.Red.copy(alpha = 0.8f),
-                title = "Max",
+                title = stringResource(R.string.max),
                 actualValue = weatherResponse.main?.tempMin?.toFahrenheit() ?: EMPTY_STRING
             )
 

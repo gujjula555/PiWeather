@@ -1,7 +1,7 @@
 /*
  *
  *   *
- *   *  * Copyright 2022 All rights are reserved by Pi App Studio
+ *   *  * Copyright 2023 All rights are reserved by Pi App Studio
  *   *  *
  *   *  * Unless required by applicable law or agreed to in writing, software
  *   *  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,8 @@
 package com.piappstudio.piui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,9 +38,6 @@ fun PiProgressIndicator(isDialogIndicator:Boolean = true, modifier: Modifier= Mo
 @Composable
 private fun PiProgressBar(modifier: Modifier) {
     Box(modifier = modifier.fillMaxSize()) {
-
         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-
-
     }
 }

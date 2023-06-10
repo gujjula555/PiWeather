@@ -50,6 +50,7 @@ dependencies {
 
     implementation(libs.timber)
 
+    testImplementation(libs.bundles.mockk.test)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
