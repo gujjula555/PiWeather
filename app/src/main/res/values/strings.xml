@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">PiWeather</string>
     <string name="title_gift_register">PiWeather</string>
-    <string name="copy_rights">Pi App Studio Inc. Reserved all rights © 2022</string>
+    <string name="copy_rights">Pi App Studio Inc. Reserved all rights © 2023</string>
     <string name="welcome_description">Love to see about what is happening here</string>
     <string name="access_current_location">Access current location</string>
     <string name="location_all_locaton_not_available">Hmm. Approximate location is fine, But you know what would be great? If you allow me to know where you exactly are</string>
@@ -18,4 +18,5 @@
     <string name="max">Max</string>
     <string name="min">Min</string>
     <string name="search">Search</string>
+    <string name="hpa">hpa</string>
 </resources>

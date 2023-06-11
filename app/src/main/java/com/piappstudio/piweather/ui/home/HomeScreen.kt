@@ -156,7 +156,9 @@ fun PiWidget(
             Icon(
                 imageVector = imageVector,
                 contentDescription = title,
-                modifier = Modifier.size(Dimen.image_size).padding(top = Dimen.space)
+                modifier = Modifier
+                    .size(Dimen.image_size)
+                    .padding(top = Dimen.space)
             )
             Spacer(modifier = Modifier.height(Dimen.space))
             Text(
@@ -282,7 +284,8 @@ fun WeatherMainScreen(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize().padding()
+            .fillMaxSize()
+            .padding()
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -346,7 +349,7 @@ fun WeatherMainScreen(
             PiWidget(
                 imageVector = Icons.Default.WindPower,
                 title = stringResource(R.string.pressure),
-                actualValue = weatherResponse.main?.pressure?.toString() ?: EMPTY_STRING,
+                actualValue = weatherResponse.main?.pressure?.toString()+ stringResource(R.string.hpa),
                 modifier = Modifier.weight(1f)
             )
 
@@ -358,7 +361,9 @@ fun WeatherMainScreen(
             text = stringResource(R.string.temperature),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Light,
-            modifier = Modifier.padding(Dimen.space).align(Alignment.Start)
+            modifier = Modifier
+                .padding(Dimen.space)
+                .align(Alignment.Start)
         )
         Row(
             modifier = Modifier.padding(Dimen.space),
@@ -374,7 +379,7 @@ fun WeatherMainScreen(
                 modifier = Modifier.weight(1f),
                 imageVector = Icons.Default.WbSunny,
                 title = stringResource(R.string.max),
-                actualValue = weatherResponse.main?.tempMin?.toFahrenheit() ?: EMPTY_STRING
+                actualValue = weatherResponse.main?.tempMax?.toFahrenheit() ?: EMPTY_STRING
             )
 
         }
