@@ -79,7 +79,9 @@ class HomeScreenViewModel @Inject constructor(private val prefUtil: PrefUtil,
     }
 
     fun updateStateName(city: String) {
-        _homeState.update { it.copy(currentCity = city) }
+        if (city.length<50) {
+            _homeState.update { it.copy(currentCity = city) }
+        }
     }
 
     fun cleanPreviousCity() {

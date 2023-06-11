@@ -217,6 +217,7 @@ fun AddSearchView(
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Search, contentDescription = stringResource(id = R.string.search))
             },
+            maxLines = 1,
             trailingIcon = {
                 IconButton(
                     onClick = { onClickLocation.invoke() }
