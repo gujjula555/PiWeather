@@ -26,6 +26,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -80,6 +82,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                 .padding(it)
                 .padding(Dimen.space)
         ) {
+            Spacer(modifier = Modifier.height(Dimen.tripleSpace))
             AddSearchView(text = homeState.currentCity ?: EMPTY_STRING, onSearchChange = { city ->
                 viewModel.updateStateName(city)
             }, onClickSearch = {
@@ -103,6 +106,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
 @Preview
 @Composable
 fun RenderWeatherInformation(weatherResponse: WeatherResponse? = null) {
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (weatherResponse == null) {
@@ -152,12 +156,12 @@ fun PiWidget(
             Icon(
                 imageVector = imageVector,
                 contentDescription = title,
-                modifier = Modifier.size(Dimen.image_size)
+                modifier = Modifier.size(Dimen.image_size).padding(top = Dimen.space)
             )
             Spacer(modifier = Modifier.height(Dimen.space))
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
             Text(
@@ -188,7 +192,10 @@ fun AddSearchView(
     onClickLocation: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    Row(modifier = Modifier.fillMaxWidth()) {
+
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(Dimen.doubleSpace), verticalAlignment = Alignment.CenterVertically) {
         OutlinedTextField(
             value = text,
             onValueChange = {
@@ -202,18 +209,23 @@ fun AddSearchView(
                 onClickSearch.invoke()
             }),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            modifier = Modifier.weight(1.0f)
+            modifier = Modifier
+                .weight(1.0f)
+                .padding(Dimen.space),
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Search, contentDescription = stringResource(id = R.string.search))
+            },
+            trailingIcon = {
+                IconButton(
+                    onClick = { onClickLocation.invoke() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = stringResource(R.string.access_current_location)
+                    )
+                }
+            }
         )
-
-        IconButton(
-            onClick = { onClickLocation.invoke() }, modifier = Modifier
-                .padding(start = Dimen.space, end = Dimen.space)
-        ) {
-            Icon(
-                imageVector = Icons.Default.LocationOn,
-                contentDescription = stringResource(R.string.access_current_location)
-            )
-        }
     }
 }
 
@@ -270,7 +282,7 @@ fun WeatherMainScreen(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize().padding()
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -286,17 +298,12 @@ fun WeatherMainScreen(
                 Text(
                     text = weatherItem?.main ?: EMPTY_STRING,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Light
+                    fontWeight = FontWeight.SemiBold
                 )
             }
-            Text(
-                text = weatherItem?.description ?: EMPTY_STRING,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
         }
 
-        Spacer(modifier = Modifier.height(Dimen.tripleSpace))
+        Spacer(modifier = Modifier.height(Dimen.space))
 
         // To render the location information
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -349,9 +356,9 @@ fun WeatherMainScreen(
         Spacer(modifier = Modifier.height(Dimen.doubleSpace))
         Text(
             text = stringResource(R.string.temperature),
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Light,
-            modifier = Modifier.padding(Dimen.space)
+            modifier = Modifier.padding(Dimen.space).align(Alignment.Start)
         )
         Row(
             modifier = Modifier.padding(Dimen.space),

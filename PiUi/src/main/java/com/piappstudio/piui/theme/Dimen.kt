@@ -10,4 +10,5 @@ object Dimen {
     val tripleSpace = 24.dp
     val space = 8.dp
     val half_space = 4.dp
+    val zero_space = 0.dp
 }

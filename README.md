@@ -2,7 +2,7 @@
 Pi Weather is an android application created to demonstrate the coding capability and hands on experience in various framework described below
 
 ## Demo Video
-![PiWeather Demo](https://github.com/piappstudio/PiWeather/blob/master/Demo.mp4)
+![PiWeather Demo](https://github.com/piappstudio/PiWeather/raw/master/Demo.mp4)
 ## Features:
 - Designed as single activity based application
 - Designed with jetpack compose using latest material3 framework and kotlin

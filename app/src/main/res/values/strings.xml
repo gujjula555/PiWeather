@@ -17,4 +17,5 @@
     <string name="temperature">Temperature</string>
     <string name="max">Max</string>
     <string name="min">Min</string>
+    <string name="search">Search</string>
 </resources>

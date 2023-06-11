@@ -2,7 +2,22 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="HomeScreenViewModelTest">
+        <State />
+      </entry>
+      <entry key="HomeScreenViewModelTest.validate fetch weatherForLocation method with different scenario">
+        <State />
+      </entry>
+      <entry key="UpdateHomeScreen">
+        <State />
+      </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="validateHomeScreen()">
+        <State />
+      </entry>
+      <entry key="validateHomeScreenWithTexasCity()">
         <State />
       </entry>
     </value>
