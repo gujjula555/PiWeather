@@ -8,6 +8,8 @@ Pi Weather is an android application created to demonstrate the coding capabilit
 - Designed with jetpack compose using latest material3 framework and kotlin
 - Uses Hilt Android for dependency injection
 - Uses MVVM (Model, View, View-Model) along with MVI (Model-View-Intent)
+- App can create foreground service and track the weather when user changes the location
+- Customized Permission Dialog
 
 ## Key frameworks
 - Retrofit to network operation
@@ -16,6 +18,9 @@ Pi Weather is an android application created to demonstrate the coding capabilit
 - Lottie for splash animations
 - Hilt for dependency injection
 - Uses Jetpack compose BOM
+- Hilt Worker
+- WorkManager with CoroutineWorker
+
 
 ## Submodules
 This app is internally depends the below submodules
