@@ -19,10 +19,11 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -45,6 +46,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.isGranted
@@ -54,17 +57,23 @@ import com.piappstudio.piui.theme.Dimen
 @Composable
 fun PermissionBox(
     modifier: Modifier = Modifier,
+    lottieResource: Int,
     permission: String,
     description: String? = null,
     contentAlignment: Alignment = Alignment.TopStart,
-    onGranted: @Composable BoxScope.() -> Unit,
+    onDismiss: () -> Unit,
+    onGranted: () -> Unit,
 ) {
     PermissionBox(
         modifier,
+        lottieResource,
         permissions = listOf(permission),
         requiredPermissions = listOf(permission),
         description,
         contentAlignment,
+        onDismiss = {
+            onDismiss()
+        }
     ) { onGranted() }
 }
 
@@ -78,68 +87,76 @@ fun PermissionBox(
 @Composable
 fun PermissionBox(
     modifier: Modifier = Modifier,
+    lottieResource:Int,
     permissions: List<String>,
     requiredPermissions: List<String> = permissions,
     description: String? = null,
     contentAlignment: Alignment = Alignment.TopStart,
-    onGranted: @Composable BoxScope.(List<String>) -> Unit,
+    onDismiss:()->Unit,
+    onGranted: (List<String>) -> Unit,
 ) {
-    val context = LocalContext.current
-    var errorText by remember {
-        mutableStateOf("")
-    }
-
-    val requiredPiWeather = stringResource(R.string.required_for_the_piweather)
-    val permissionState = rememberMultiplePermissionsState(permissions = permissions) { map ->
-        val rejectedPermissions = map.filterValues { !it }.keys
-        errorText = if (rejectedPermissions.none { it in requiredPermissions }) {
-            ""
-        } else {
-            String.format(requiredPiWeather, rejectedPermissions.joinToString())
+    Dialog(onDismissRequest = { onDismiss() }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        val context = LocalContext.current
+        var errorText by remember {
+            mutableStateOf("")
         }
-    }
-    val allRequiredPermissionsGranted =
-        permissionState.revokedPermissions.none { it.permission in requiredPermissions }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(modifier),
-        contentAlignment = if (allRequiredPermissionsGranted) {
-            contentAlignment
-        } else {
-            Alignment.Center
-        },
-    ) {
-        if (allRequiredPermissionsGranted) {
-            onGranted(
-                permissionState.permissions
-                    .filter { it.status.isGranted }
-                    .map { it.permission },
-            )
-        } else {
-            PermissionScreen(
-                permissionState,
-                description,
-                errorText,
-            )
+        val requiredPiWeather = stringResource(R.string.required_for_the_piweather)
+        val permissionState = rememberMultiplePermissionsState(permissions = permissions) { map ->
+            val rejectedPermissions = map.filterValues { !it }.keys
+            errorText = if (rejectedPermissions.none { it in requiredPermissions }) {
+                ""
+            } else {
+                String.format(requiredPiWeather, rejectedPermissions.joinToString())
+            }
+        }
+        val allRequiredPermissionsGranted =
+            permissionState.revokedPermissions.none { it.permission in requiredPermissions }
 
-            FloatingActionButton(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(Dimen.doubleSpace),
-                onClick = {
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        data = Uri.parse("package:${context.packageName}")
-                    }
-                    context.startActivity(intent)
-                },
-            ) {
-                Icon(imageVector = Icons.Rounded.Settings, contentDescription = stringResource(R.string.app_settings))
+        Box(
+            modifier = Modifier
+                .fillMaxSize().background(MaterialTheme.colorScheme.background)
+                .then(modifier),
+            contentAlignment = if (allRequiredPermissionsGranted) {
+                contentAlignment
+            } else {
+                Alignment.Center
+            },
+        ) {
+            if (allRequiredPermissionsGranted) {
+                onGranted(
+                    permissionState.permissions
+                        .filter { it.status.isGranted }
+                        .map { it.permission },
+                )
+            } else {
+                PermissionScreen(
+                    permissionState,
+                    description,
+                    lottieResource = lottieResource,
+                    errorText,
+                ) {
+                    onDismiss()
+                }
+
+                FloatingActionButton(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(Dimen.doubleSpace),
+                    onClick = {
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            data = Uri.parse("package:${context.packageName}")
+                        }
+                        context.startActivity(intent)
+                    },
+                ) {
+                    Icon(imageVector = Icons.Rounded.Settings, contentDescription = stringResource(R.string.app_settings))
+                }
             }
         }
     }
+
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -147,7 +164,9 @@ fun PermissionBox(
 private fun PermissionScreen(
     state: MultiplePermissionsState,
     description: String?,
+    lottieResource: Int,
     errorText: String,
+    onClickCancel:()->Unit
 ) {
     var showRationale by remember(state) {
         mutableStateOf(false)
@@ -172,11 +191,7 @@ private fun PermissionScreen(
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(16.dp),
         )
-        Text(
-            text = permissions,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(16.dp),
-        )
+        PILottie(resourceId = lottieResource, modifier = Modifier.fillMaxSize(0.6f))
         if (description != null) {
             Text(
                 text = description,
@@ -184,17 +199,26 @@ private fun PermissionScreen(
                 modifier = Modifier.padding(16.dp),
             )
         }
-        Button(
-            onClick = {
-                if (state.shouldShowRationale) {
-                    showRationale = true
-                } else {
-                    state.launchMultiplePermissionRequest()
-                }
-            },
-        ) {
-            Text(text = stringResource(R.string.grant_permissions))
+        
+        Row (modifier = Modifier
+            .fillMaxWidth()
+            .padding(Dimen.doubleSpace), horizontalArrangement = Arrangement.SpaceBetween) {
+            Button(onClick = { onClickCancel() }) {
+                Text(text = stringResource(id = R.string.dismiss))
+            }
+            Button(
+                onClick = {
+                    if (state.shouldShowRationale) {
+                        showRationale = true
+                    } else {
+                        state.launchMultiplePermissionRequest()
+                    }
+                },
+            ) {
+                Text(text = stringResource(R.string.grant_permissions))
+            }
         }
+        
         if (errorText.isNotBlank()) {
             Text(
                 text = errorText,

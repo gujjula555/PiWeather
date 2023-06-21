@@ -70,6 +70,7 @@ dependencies {
     implementation(project(":PiNetwork"))
     implementation(project(":PiNavigation"))
     implementation(project(":PiUi"))
+    implementation(libs.retrofit.gson)
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)
@@ -80,7 +81,9 @@ dependencies {
     implementation(libs.bundles.ui)
     implementation(libs.bundles.hilt)
     kapt(libs.hilt.android.compiler)
-    implementation(libs.lottie)
+    implementation(libs.hilt.work)
+    implementation(libs.work.runtime)
+
     implementation(libs.coil.compose)
     implementation(libs.timber)
     implementation(libs.navigation.compose)

@@ -1,4 +1,4 @@
-package com.piappstudio.piweather.ui.common
+package com.piappstudio.piui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

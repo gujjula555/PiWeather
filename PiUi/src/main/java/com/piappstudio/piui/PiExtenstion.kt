@@ -15,9 +15,11 @@
 
 package com.piappstudio.piui
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.Uri
 import android.provider.Settings
 import android.text.Html
@@ -172,4 +174,22 @@ fun Modifier.piTopBar():Modifier {
     return this
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.outline.copy(0.1f))
+}
+
+fun Context.checkLocationPermission(): Boolean {
+    val permissionGranted = PackageManager.PERMISSION_GRANTED
+    return ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    ) == permissionGranted || ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    ) == permissionGranted
+}
+
+fun Context.isNetworkOrGPSEnabled():Boolean {
+    val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    return isGpsEnabled || isNetworkEnabled
 }
