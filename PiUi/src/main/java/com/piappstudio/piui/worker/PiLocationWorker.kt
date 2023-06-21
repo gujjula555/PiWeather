@@ -28,6 +28,7 @@ import com.piappstudio.pimodel.toFahrenheit
 import com.piappstudio.pinetwork.PiWeatherRepository
 import com.piappstudio.piui.location.PiLocationManager
 import com.piappstudio.piui.notification.createForegroundInfo
+import com.piappstudio.piui.notification.getNotificationBuilder
 import com.piappstudio.piui.notification.showPiNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -44,6 +45,8 @@ class PiLocationWorker @AssistedInject constructor(@Assisted val context: Contex
                                            @Assisted private val workerParameters: WorkerParameters
 ): CoroutineWorker(context, workerParameters) {
 
+
+    private val notificationBuilder = getNotificationBuilder()
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface PiLocationWorkerProviderEntryPoint {
@@ -59,7 +62,7 @@ class PiLocationWorker @AssistedInject constructor(@Assisted val context: Contex
         val weatherRepository = entryPoint.weatherRepository()
 
         // Create foreground service
-        val foregroundInfo =createForegroundInfo()
+        val foregroundInfo =createForegroundInfo(notificationBuilder)
         setForeground(foregroundInfo)
         val gson = Gson()
 
@@ -74,7 +77,7 @@ class PiLocationWorker @AssistedInject constructor(@Assisted val context: Contex
                     val message = "${weatherInfo?.name}, ${weatherInfo?.sys?.country}, \n " +
                             "${response.data?.main?.temp?.toFahrenheit()}/${weatherInfo?.main?.feelsLike?.toFahrenheit()}"
                     Timber.d("Fetch response result: $message")
-                    context.showPiNotification(message)
+                    context.showPiNotification(message, notificationBuilder)
                     setProgressAsync(Data.Builder().putString(WEATHER_RESPONSE, gson.toJson(response.data)).build())
                 }
             }

@@ -29,6 +29,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -41,20 +42,11 @@ const val FOREGROUND_NOTIFICATION_ID = 400
  * https://developer.android.com/guide/background/persistent/how-to/long-running
  * To update the foreground notification's content text by using it unique id i.e [FOREGROUND_NOTIFICATION_ID]
  */
-fun Context.showPiNotification(message: String) {
+fun Context.showPiNotification(message: String, notificationBuilder: Builder) {
     // Make a channel if necessary
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         createChannel(this)
     }
-    val title = getString(R.string.location_channel_title)
-
-    // Create the notification
-    val builder = NotificationCompat.Builder(this, this.getString(R.string.location_channel_id))
-        .setContentTitle(title)
-        .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-        .setContentText(message)
-        .setOngoing(true)
-        .setPriority(NotificationCompat.PRIORITY_LOW)
 
     // Show the notification
     if (ActivityCompat.checkSelfPermission(
@@ -65,14 +57,10 @@ fun Context.showPiNotification(message: String) {
         return
     }
 
-    NotificationManagerCompat.from(this).notify(FOREGROUND_NOTIFICATION_ID, builder.build())
+    NotificationManagerCompat.from(this).notify(FOREGROUND_NOTIFICATION_ID, notificationBuilder.setContentText(message).build())
 }
 
-/***
- * Create a foreground notification id
- */
-fun CoroutineWorker.createForegroundInfo(): ForegroundInfo {
-
+fun CoroutineWorker.getNotificationBuilder(): NotificationCompat.Builder {
     // Build a notification using bytesRead and contentLength
     val context: Context = applicationContext
     val id = context.getString(R.string.location_channel_id)
@@ -85,18 +73,27 @@ fun CoroutineWorker.createForegroundInfo(): ForegroundInfo {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         createChannel(context)
     }
-    val notification: Notification = NotificationCompat.Builder(context, id)
+    val builder = NotificationCompat.Builder(context, id)
         .setContentTitle(title)
         .setContentText(contextText)
         .setSmallIcon(android.R.drawable.ic_menu_mylocation)
         .setOngoing(true) // Add the cancel action to the notification which can
         // be used to cancel the worker
         .addAction(android.R.drawable.ic_delete, cancel, intent)
-        .build()
+
+    return builder
+}
+
+/***
+ * Create a foreground notification id
+ */
+fun CoroutineWorker.createForegroundInfo(notificationBuilder:NotificationCompat.Builder): ForegroundInfo {
+
+
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        ForegroundInfo(FOREGROUND_NOTIFICATION_ID, notification, FOREGROUND_SERVICE_TYPE_LOCATION )
+        ForegroundInfo(FOREGROUND_NOTIFICATION_ID, notificationBuilder.build(), FOREGROUND_SERVICE_TYPE_LOCATION )
     } else {
-        ForegroundInfo(FOREGROUND_NOTIFICATION_ID, notification)
+        ForegroundInfo(FOREGROUND_NOTIFICATION_ID, notificationBuilder.build())
     }
 }
 
