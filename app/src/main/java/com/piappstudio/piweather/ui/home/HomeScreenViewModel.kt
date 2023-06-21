@@ -1,5 +1,7 @@
 package com.piappstudio.piweather.ui.home
 
+import android.content.Context
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.piappstudio.pimodel.PrefUtil
@@ -10,12 +12,18 @@ import com.piappstudio.pinavigation.ErrorInfo
 import com.piappstudio.pinavigation.ErrorManager
 import com.piappstudio.pinavigation.ErrorState
 import com.piappstudio.pinetwork.PiWeatherRepository
+import com.piappstudio.piui.location.PiLocationManager
+import com.piappstudio.piui.worker.PiLocationWorker_Factory
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,12 +34,14 @@ import javax.inject.Inject
 data class HomeScreenState(val isLoading:Boolean = false,
                            val weatherResponse: WeatherResponse?=null,
                            val piError: PIError?=null,
-                           val currentCity:String? = null)
+                           val currentCity:String? = null, val isForegroundServiceStarted:Boolean = false)
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(private val prefUtil: PrefUtil,
                                               private val piWeatherRepository: PiWeatherRepository,
-                                              private val errorManager: ErrorManager, val locationManager: PiLocationManager):ViewModel()  {
+                                              private val errorManager: ErrorManager,
+                                              val locationManager: PiLocationManager
+):ViewModel()  {
 
 
     private val _homeState:MutableStateFlow<HomeScreenState> = MutableStateFlow(HomeScreenState())
@@ -58,7 +68,7 @@ class HomeScreenViewModel @Inject constructor(private val prefUtil: PrefUtil,
                 when (response.status) {
                     Resource.Status.SUCCESS-> {
                         prefUtil.saveCity(city)
-                        _homeState.update { it.copy(isLoading = false, weatherResponse = response.data )}
+                        _homeState.update { it.copy(isLoading = false, weatherResponse = response.data) }
                     }
                     Resource.Status.LOADING-> {
                         _homeState.update { it.copy(isLoading = true) }
@@ -94,12 +104,7 @@ class HomeScreenViewModel @Inject constructor(private val prefUtil: PrefUtil,
                 Timber.d(response.data.toString())
                 when (response.status) {
                     Resource.Status.SUCCESS-> {
-                        response.data?.name?.let { city->
-                            prefUtil.saveCity(city)
-                            _homeState.update { it.copy(currentCity = city) }
-                        }
-
-                        _homeState.update { it.copy(isLoading = false, weatherResponse = response.data )}
+                        updateWeatherResponse(response.data)
                     }
                     Resource.Status.LOADING-> {
                         _homeState.update { it.copy(isLoading = true) }
@@ -117,4 +122,37 @@ class HomeScreenViewModel @Inject constructor(private val prefUtil: PrefUtil,
             }.collect()
         }
     }
+
+    fun updateWeatherResponse(weatherResponse: WeatherResponse?) {
+        weatherResponse?.name?.let { city->
+            prefUtil.saveCity(city)
+            _homeState.update { it.copy(currentCity = city) }
+        }
+        _homeState.update { it.copy(isLoading = false, weatherResponse = weatherResponse) }
+    }
+
+    fun requestCurrentLocation(callback: () -> Unit) {
+        val locationCoroutineScope =  CoroutineScope(SupervisorJob()+Dispatchers.IO)
+        locationManager.locationUpdates(1000).onEach {
+            fetchWeatherForLocation(it.latitude, it.longitude)
+            /***
+             * Access the location only once and stop the updates immediately
+             */
+            locationCoroutineScope.cancel()
+            callback.invoke()
+        }.catch {
+            Timber.e(it)
+        }.launchIn(locationCoroutineScope)
+    }
+
+    fun stopService(context: Context) {
+        _homeState.update { it.copy(isForegroundServiceStarted = false) }
+        stopCoroutineWorker(context)
+    }
+
+    fun startService(context: Context) {
+        _homeState.update { it.copy(isForegroundServiceStarted = true) }
+        startCoroutineWorker(context)
+    }
+
 }

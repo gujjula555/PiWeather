@@ -23,7 +23,6 @@ import com.piappstudio.pimodel.error.PIError
 import com.piappstudio.pinavigation.ErrorManager
 import com.piappstudio.pinetwork.PiWeatherRepository
 import com.piappstudio.piweather.ui.home.HomeScreenViewModel
-import com.piappstudio.piweather.ui.home.PiLocationManager
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.unmockkAll

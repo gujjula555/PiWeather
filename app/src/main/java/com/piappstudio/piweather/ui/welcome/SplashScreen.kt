@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.piappstudio.piweather.R
 import com.piappstudio.piui.theme.Dimen
-import com.piappstudio.piweather.ui.common.PILottie
+import com.piappstudio.piui.PILottie
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
