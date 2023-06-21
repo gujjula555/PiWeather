@@ -2,6 +2,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.android.kotlin)
+    id ("kotlin-kapt")
+    id ("dagger.hilt.android.plugin")
 }
 
 android {
@@ -42,6 +44,9 @@ android {
 
 dependencies {
 
+    implementation(project(":PiNetwork"))
+    implementation(project(":PiModel"))
+    implementation(libs.retrofit.gson)
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -50,7 +55,13 @@ dependencies {
     implementation(libs.accompanist.permissions)
     implementation(libs.appcompanist.placeholder)
     implementation(libs.timber)
-
+    implementation(libs.bundles.hilt)
+    implementation(libs.hilt.work)
+    implementation(libs.work.runtime)
+    kapt(libs.hilt.android.compiler)
+    implementation(libs.lottie)
+    implementation(libs.play.service.location)
+    implementation(libs.androidx.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -1,5 +1,8 @@
 package com.piappstudio.piweather.ui.home
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,22 +19,24 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.NotStarted
 import androidx.compose.material.icons.filled.RunCircle
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.StopCircle
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.WindPower
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,18 +45,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationResult
 import com.piappstudio.pimodel.Constant.EMPTY_STRING
 import com.piappstudio.pimodel.Main
 import com.piappstudio.pimodel.Sys
@@ -60,10 +64,10 @@ import com.piappstudio.pimodel.WeatherResponse
 import com.piappstudio.pimodel.toFahrenheit
 import com.piappstudio.piui.PermissionBox
 import com.piappstudio.piui.PiProgressIndicator
+import com.piappstudio.piui.checkLocationPermission
 import com.piappstudio.piui.piShadow
 import com.piappstudio.piui.theme.Dimen
 import com.piappstudio.piweather.R
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,15 +101,14 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                 }
             }
             Spacer(modifier = Modifier.height(Dimen.doubleSpace))
-            RenderWeatherInformation(homeState.weatherResponse)
+            RenderWeatherInformation(homeState.weatherResponse, viewModel = viewModel)
         }
     }
 }
 
 
-@Preview
 @Composable
-fun RenderWeatherInformation(weatherResponse: WeatherResponse? = null) {
+fun RenderWeatherInformation(weatherResponse: WeatherResponse? = null, viewModel: HomeScreenViewModel) {
 
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -133,8 +136,58 @@ fun RenderWeatherInformation(weatherResponse: WeatherResponse? = null) {
         } else {
             WeatherMainScreen(weatherResponse)
         }
+
+        AskNotificationPermission()
+
+        val homeScreenState by viewModel.homeState.collectAsState()
+        val context = LocalContext.current
+        FloatingActionButton(onClick = {
+                                       if (homeScreenState.isForegroundServiceStarted) {
+                                           viewModel.stopService(context)
+                                       } else {
+                                           viewModel.startService(context)
+                                       }
+        }, modifier = Modifier
+            .padding(Dimen.doubleSpace)
+            .align(Alignment.BottomEnd)) {
+            if (homeScreenState.isForegroundServiceStarted) {
+                Icon(imageVector = Icons.Default.StopCircle, contentDescription = "Stop location tracking")
+            } else {
+                Icon(imageVector = Icons.Default.NotStarted, contentDescription = "Start location tracking" )
+            }
+        }
+
     }
 
+
+}
+
+@Composable
+fun AskNotificationPermission() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (ActivityCompat.checkSelfPermission(
+                LocalContext.current,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+
+            var showDialog by remember {
+                mutableStateOf(true)
+            }
+            if (showDialog) {
+
+                PermissionBox(lottieResource = com.piappstudio.piui.R.raw.notifications,
+                    description = stringResource(id = R.string.post_notification_description),
+                    permission = Manifest.permission.POST_NOTIFICATIONS, onDismiss = {
+                        showDialog = false
+                    }) {
+                    showDialog = false
+
+                }
+            }
+        }
+
+    }
 
 }
 
@@ -195,9 +248,11 @@ fun AddSearchView(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(Dimen.doubleSpace), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(Dimen.doubleSpace), verticalAlignment = Alignment.CenterVertically
+    ) {
         OutlinedTextField(
             value = text,
             onValueChange = {
@@ -215,7 +270,10 @@ fun AddSearchView(
                 .weight(1.0f)
                 .padding(Dimen.space),
             leadingIcon = {
-                Icon(imageVector = Icons.Default.Search, contentDescription = stringResource(id = R.string.search))
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = stringResource(id = R.string.search)
+                )
             },
             maxLines = 1,
             trailingIcon = {
@@ -236,37 +294,25 @@ fun AddSearchView(
 @Composable
 fun AddLocationPermissionButton(viewModel: HomeScreenViewModel, callback: () -> Unit) {
 
-    val locationManager = viewModel.locationManager
-    PermissionBox(
-        permissions = listOf(
-            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.ACCESS_FINE_LOCATION
-        ), requiredPermissions = listOf(android.Manifest.permission.ACCESS_COARSE_LOCATION)
-    ) {
-
-        DisposableEffect(key1 = Unit) {
-            if (locationManager.checkLocationPermission()) {
-                val locationCallback = object : LocationCallback() {
-                    override fun onLocationResult(locationResult: LocationResult) {
-                        locationResult.lastLocation?.let { location ->
-                            Timber.d("Latitude: ${location.latitude}, Longitude: ${location.longitude}")
-                            viewModel.fetchWeatherForLocation(location.latitude, location.longitude)
-                            locationManager.removeLocationUpdates(this)
-                            callback.invoke()
-                        }
-                    }
-                }
-                locationManager.requestLocationUpdates(locationCallback)
-                onDispose {
-                    locationManager.removeLocationUpdates(locationCallback)
-                }
-            }
-            onDispose {
-                Timber.d("Do nothing, because, we are not attached anything")
+    if (LocalContext.current.checkLocationPermission()) {
+        viewModel.requestCurrentLocation(callback)
+    } else {
+        PermissionBox(
+            lottieResource = com.piappstudio.piui.R.raw.location,
+            description = stringResource(R.string.location_description),
+            permissions = listOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            requiredPermissions = listOf(android.Manifest.permission.ACCESS_COARSE_LOCATION),
+            onDismiss = callback
+        ) {
+            if (it.isNotEmpty()) {
+                viewModel.requestCurrentLocation(callback)
             }
         }
-
     }
+
 }
 
 /** To render Weather details*/
@@ -350,7 +396,7 @@ fun WeatherMainScreen(
             PiWidget(
                 imageVector = Icons.Default.WindPower,
                 title = stringResource(R.string.pressure),
-                actualValue = weatherResponse.main?.pressure?.toString()+ stringResource(R.string.hpa),
+                actualValue = weatherResponse.main?.pressure?.toString() + stringResource(R.string.hpa),
                 modifier = Modifier.weight(1f)
             )
 

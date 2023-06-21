@@ -28,7 +28,6 @@ import com.piappstudio.pinetwork.PiWeatherRepository
 import com.piappstudio.piui.theme.PiWeatherTheme
 import com.piappstudio.piweather.ui.home.HomeScreen
 import com.piappstudio.piweather.ui.home.HomeScreenViewModel
-import com.piappstudio.piweather.ui.home.PiLocationManager
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import junit.framework.TestCase.assertNotNull

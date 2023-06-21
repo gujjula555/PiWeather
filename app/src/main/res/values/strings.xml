@@ -19,4 +19,6 @@
     <string name="min">Min</string>
     <string name="search">Search</string>
     <string name="hpa">hpa</string>
+    <string name="post_notification_description">We would like to post the notification as on when you change the location</string>
+    <string name="location_description">We need to access your location to provide weather details</string>
 </resources>
